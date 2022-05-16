@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask
+  labels:
+    app: flask
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flask-container
+  template:
+    metadata:
+      labels:
+        app: flask-container
+    spec:
+      containers:
+        - name: flask
+          image: moqrin/flask_eks
+          ports:
+            - containerPort: 80
+          env:
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-credentials
+                  key: user
+
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-credentials
+                  key: password
+
+            - name: MYSQL_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: common-env
+                  key: mysql-database
+
+            - name: MYSQL_HOST
+              value: mysql-service
